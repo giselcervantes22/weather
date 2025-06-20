@@ -12,7 +12,7 @@ function showweatherDetails(event) {
     
     const apiKey = '3a5ce244261be337370afccee550e297';
     // URL corregida - usando el nombre de la ciudad
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}`;
     
     // Mostrar mensaje de carga
     const weatherInfo = document.getElementById('weatherInfo');
