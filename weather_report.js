@@ -1,45 +1,53 @@
 function showweatherDetails(event) {
     event.preventDefault();
     
-    // Obtener el valor de la ciudad DENTRO de la función
-    const city = document.getElementById('city').value;
+    const city = document.getElementById('city').value.trim();
     
-    // Validar que se ingresó una ciudad
     if (!city) {
         alert('Por favor ingresa una ciudad');
         return;
     }
     
     const apiKey = '3a5ce244261be337370afccee550e297';
-    // URL corregida - usando el nombre de la ciudad
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}`;
     
-    // Mostrar mensaje de carga
+    // Prueba con país específico para mayor precisión
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city},MX&appid=${apiKey}&units=metric`;
+    
     const weatherInfo = document.getElementById('weatherInfo');
     weatherInfo.innerHTML = '<p>Cargando información del clima...</p>';
     
     fetch(apiUrl)
         .then(response => {
+            console.log('Response status:', response.status); // Para debugging
             if (!response.ok) {
-                throw new Error('Ciudad no encontrada');
+                // Si falla con ",MX", prueba sin especificar país
+                const fallbackUrl = `https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}`;
+                return fetch(fallbackUrl);
+            }
+            return response;
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Ciudad no encontrada. Código: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
-            // Mostrar la información del clima
+            console.log('Weather data:', data); // Para debugging
             weatherInfo.innerHTML = `
-                <h2>Weather in ${data.name}</h2>
-                <p>Temperature: ${data.main.temp}°C</p>
+                <h2>Weather in ${data.name}, ${data.sys.country}</h2>
+                <p>Temperature: ${Math.round(data.main.temp)}°C</p>
                 <p>Weather: ${data.weather[0].description}</p>
-                <p>Feels like: ${data.main.feels_like}°C</p>
+                <p>Feels like: ${Math.round(data.main.feels_like)}°C</p>
                 <p>Humidity: ${data.main.humidity}%</p>
+                <p>Wind Speed: ${data.wind.speed} m/s</p>
             `;
         })
         .catch(error => {
-            // Manejo de errores
-            weatherInfo.innerHTML = `<p>Error: ${error.message}</p>`;
+            console.error('Error:', error); // Para debugging
+            weatherInfo.innerHTML = `<p>Error: ${error.message}</p>
+                                   <p>Intenta con: "Puerto Vallarta", "Guadalajara", "Mexico City"</p>`;
         });
 }
 
-// Event listener
 document.getElementById('weatherForm').addEventListener('submit', showweatherDetails);
